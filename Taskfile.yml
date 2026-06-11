@@ -1,0 +1,39 @@
+version: '3'
+
+tasks:
+  models:
+    desc: Download face-api.js model weights to public/models (skipped if already present)
+    status:
+      - test -f public/models/tiny_face_detector_model-shard1
+    cmds:
+      - mkdir -p public/models
+      - echo "Downloading face-api.js models..."
+      - curl -fsSL -o public/models/tiny_face_detector_model-weights_manifest.json https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-weights_manifest.json
+      - curl -fsSL -o public/models/tiny_face_detector_model-shard1 https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-shard1
+      - echo "Models downloaded."
+
+  deps:
+    desc: Install npm dependencies (skipped if node_modules exists)
+    status:
+      - test -d node_modules
+    cmds:
+      - echo "Installing dependencies..."
+      - npm install
+
+  dev:
+    desc: Install deps, download models, and start dev server
+    deps: [deps, models]
+    cmds:
+      - echo "Starting Frontend Dev Server..."
+      - npm run dev
+
+  build:
+    desc: Build for production
+    deps: [deps, models]
+    cmds:
+      - npm run build
+
+  clean:
+    desc: Remove node_modules and dist
+    cmds:
+      - rm -rf node_modules dist
